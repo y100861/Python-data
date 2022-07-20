@@ -1,0 +1,56 @@
+import pandas as pd
+import xlsxwriter as xl
+
+# 파일 가져오기
+data = pd.read_excel("/Users/yanghaejun/Desktop/data.xlsx", header = None, sheet_name = "word")
+
+# 엑셀 파일과 시트 만들기
+workbook = xl.Workbook("/Users/yanghaejun/Desktop/word_invert.xlsx")
+worksheet_1 = workbook.add_worksheet("단어들 개수")
+worksheet_2 = workbook.add_worksheet("중복된 단어들")
+
+# 단어 리스트 만들기
+words = []
+for i in range(0, len(data.columns)):
+    for word in data[i].dropna():
+        words.append(word)
+words_list = list(set(words))
+
+# 단어들의 개수
+dic = {}
+for word_1 in words_list:
+    cnt = 0
+    for word_2 in words:
+        if word_1 == word_2:
+            cnt += 1
+        else:
+            pass
+    dic[word_1] = cnt
+
+row = 0
+for word, cnt in dic.items():
+    worksheet_1.write(row, 0 , word)
+    worksheet_1.write(row, 1 ,cnt)
+    row += 1
+
+# 중복된 단어들
+row = 0
+for i in range(0, len(data)):
+    words_2 = list(data.loc[i].dropna())
+    for word in words_list:
+        cnt = dic[word]
+        if cnt < 2:
+            while word in words_2:
+                words_2.remove(word)
+        else:
+            pass
+    col = 0
+    if len(words_2) > 0:
+        for word_1 in words_2:
+            worksheet_2.write(row, col, word_1)
+            col += 1
+        row += 1
+    else:
+        pass
+
+workbook.close()
